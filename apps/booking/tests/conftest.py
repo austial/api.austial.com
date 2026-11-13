@@ -20,6 +20,7 @@ os.environ.update(
         "MAIL_BACKEND": "console",
         "CALENDAR_BACKEND": "none",
         "MAIL_NOTIFY_TO": "owner@example.com",
+        "ADMIN_TOKEN": "test-admin-token",
         "SITE_URL": "https://services.example.test",
         "AVAILABILITY_FILE": str(Path(__file__).parent / "availability.test.toml"),
     }

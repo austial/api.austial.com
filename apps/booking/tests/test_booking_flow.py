@@ -161,3 +161,42 @@ async def test_reminder_is_sent_once(app, mailer, client):
     assert any(m.subject.startswith("Reminder") for m in mailer.sent)
     assert await svc.run_once(inside) == 0  # only once
     assert soon > due
+
+
+async def _booked_slot(client, mailer, email):
+    start = (await first_slots(client, 6))[5]["start"]
+    hold = (await client.post("/v1/booking/holds", json=hold_body(start, email))).json()
+    await client.post(f"/v1/booking/holds/{hold['holdId']}/verify", json={"code": code_from(mailer)})
+    return start
+
+
+async def test_two_reminder_passes_at_once_send_one_reminder(app, mailer, client):
+    import asyncio
+
+    from booking.reminders.service import ReminderService
+    from booking.timeutil import parse_iso
+
+    start = await _booked_slot(client, mailer, "race@example.com")
+    svc = app.get(ReminderService)
+    inside = parse_iso(start) - timedelta(hours=2)
+    results = await asyncio.gather(svc.run_once(inside), svc.run_once(inside))
+    assert sum(results) == 1
+    assert len([m for m in mailer.sent if m.subject.startswith("Reminder")]) == 1
+
+
+async def test_failed_reminder_is_retried_on_the_next_pass(app, mailer, client):
+    from booking.reminders.service import ReminderService
+    from booking.timeutil import parse_iso
+
+    start = await _booked_slot(client, mailer, "retry@example.com")
+    svc = app.get(ReminderService)
+    inside = parse_iso(start) - timedelta(hours=2)
+    real_send = svc.mailer.send
+
+    async def boom(message):
+        raise RuntimeError("ses is down")
+
+    svc.mailer.send = boom
+    assert await svc.run_once(inside) == 0
+    svc.mailer.send = real_send
+    assert await svc.run_once(inside) == 1

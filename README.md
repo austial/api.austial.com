@@ -50,6 +50,15 @@ Edit `apps/booking/availability.toml` for your real hours, time zone, buffer and
 
 **Google Calendar and Meet.** In Google Cloud, create an OAuth client, enable the Calendar API, and authorise your own account once with the scopes `calendar.events` and `calendar.freebusy` (the wizard does this for you). Put the client id, secret and the resulting **refresh token** in the env file. The API then reads free/busy, creates events with a Meet link and lets Google email the invite.
 
+## Reading leads and bookings
+
+Set `ADMIN_TOKEN` (the wizard generates one) and call the read-only routes with it; with no token they return 404:
+
+```bash
+curl -H "Authorization: Bearer $ADMIN_TOKEN" https://api.austial.com/v1/admin/leads
+curl -H "Authorization: Bearer $ADMIN_TOKEN" https://api.austial.com/v1/admin/bookings
+```
+
 ## Deploy (DigitalOcean Droplet)
 
 `docs/deploy/docker-compose.yml` runs Caddy (automatic HTTPS for `api.austial.com`) and the API container. The database is Managed Postgres. `.github/workflows/deploy.yml` tests, builds an image to GHCR and deploys over SSH when you push to `main`. Repository secrets: `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `GHCR_PULL_TOKEN`. Put `docs/deploy/` on the server at `/opt/api` with a filled-in `.env`.
@@ -57,6 +66,6 @@ Edit `apps/booking/availability.toml` for your real hours, time zone, buffer and
 ## Known limits (v0.1)
 
 - Schema changes go through versioned migrations: `python -m booking.migrate revision "message"` (review the file), then the container applies them on start. Dev and tests still create tables from the entities.
-- Rate limits and the booking lock live in memory, which is right for one container. Add a shared store before running several.
+- Reminders are safe to run on several containers (each is claimed with a conditional database update). Rate limits and the in-process booking lock are still per container, so run one container, or add a shared store first.
 - CI builds the Dockerfile and pushes the image. The SSH deploy step has not yet run against a real Droplet.
 - The Google Calendar and SES backends are implemented but not exercised against the real services.

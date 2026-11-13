@@ -6,7 +6,7 @@ import logging
 from datetime import datetime, timedelta
 
 from austial import Injectable, OnApplicationBootstrap, OnApplicationShutdown
-from austial.orm import FindOptions, InjectRepository, Repository
+from austial.orm import FindOptions, InjectRepository, IsNull, Repository
 
 from ..bookings.service import BookingsService, format_when
 from ..entities import Booking, Hold
@@ -23,8 +23,8 @@ INTERVAL_SECONDS = 60
 class ReminderService(OnApplicationBootstrap, OnApplicationShutdown):
     """In-process scheduler: no separate worker. Sends one reminder per booking and expires stale holds.
 
-    A plain loop on the framework's lifecycle hooks, because the state lives in the database (reminder_sent_at),
-    so a restart never loses or repeats a reminder.
+    A plain loop on the framework's lifecycle hooks. The state lives in the database (reminder_sent_at) and each
+    reminder is claimed with a conditional update, so neither a restart nor a second container repeats one.
     """
 
     def __init__(
@@ -71,6 +71,11 @@ class ReminderService(OnApplicationBootstrap, OnApplicationShutdown):
             start = as_utc(b.start)
             if not (now < start <= horizon):
                 continue
+            # Claim the booking in the database before sending: only one container can win this update, so
+            # several containers never send the same reminder. Give the claim back if the send fails.
+            claimed = await self.bookings.update({"id": b.id, "reminder_sent_at": IsNull()}, {"reminder_sent_at": to_db(now)})
+            if claimed.affected != 1:
+                continue
             try:
                 await self.mailer.send(
                     templates.reminder_email(
@@ -79,8 +84,8 @@ class ReminderService(OnApplicationBootstrap, OnApplicationShutdown):
                 )
             except Exception as exc:  # noqa: BLE001 - try again next pass
                 logger.error("reminder for %s failed: %r", b.id, exc)
+                await self.bookings.update({"id": b.id}, {"reminder_sent_at": None})
                 continue
-            await self.bookings.update({"id": b.id}, {"reminder_sent_at": to_db(now)})
             sent += 1
         for h in await self.holds.find(FindOptions(where={"status": "pending"})):
             if as_utc(h.expires_at) <= now:

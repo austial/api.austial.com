@@ -7,6 +7,7 @@ from austial.config import ConfigModule, ConfigService
 from austial.orm import OrmModule
 from austial.security import SecurityConfig, SecurityModule
 
+from .admin.controller import AdminController, AdminGuard
 from .availability.service import AvailabilityService
 from .bookings.controller import BookingController
 from .bookings.service import BookingsService
@@ -49,9 +50,10 @@ def _db(config: ConfigService) -> dict:
             SecurityConfig(default_rate_limit=(120, 60), trusted_proxy_hops=int(os.getenv("TRUSTED_PROXY_HOPS", "0")))
         ),
     ],
-    controllers=[BookingController, LeadsController, HealthController],
+    controllers=[BookingController, LeadsController, HealthController, AdminController],
     providers=[
         Settings,
+        AdminGuard,
         {"provide": Mailer, "useFactory": _mailer, "inject": [Settings]},
         {"provide": CalendarProvider, "useFactory": _calendar, "inject": [Settings]},
         AvailabilityService,

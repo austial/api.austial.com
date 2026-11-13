@@ -30,6 +30,7 @@ class EnvSchema(BaseModel):
     GOOGLE_REFRESH_TOKEN: str = ""
     GOOGLE_CALENDAR_ID: str = "primary"
 
+    ADMIN_TOKEN: str = ""  # enables the read-only /v1/admin routes; empty disables them
     HOLD_MINUTES: int = 15
     REMINDER_HOURS: int = 24
 
@@ -58,6 +59,7 @@ class Settings:
         self.google_client_secret = s.GOOGLE_CLIENT_SECRET
         self.google_refresh_token = s.GOOGLE_REFRESH_TOKEN
         self.google_calendar_id = s.GOOGLE_CALENDAR_ID
+        self.admin_token = s.ADMIN_TOKEN
         self.hold_minutes = s.HOLD_MINUTES
         self.reminder_hours = s.REMINDER_HOURS
         if self.is_prod and self.code_pepper == "dev-only-change-me":

@@ -235,6 +235,10 @@ if [[ -z "$(_existing CODE_PEPPER || true)" ]]; then
 else
   note "CODE_PEPPER already set, keeping it (changing it breaks open codes and manage links)."
 fi
+if [[ -z "$(_existing ADMIN_TOKEN || true)" ]]; then
+  write_env ADMIN_TOKEN "$(openssl rand -hex 24)"
+  note "ADMIN_TOKEN is the bearer token for the read-only /v1/admin routes. Keep it in $ENV_FILE."
+fi
 pause
 
 # ── 2. SES: verify the domain ─────────────────────────────────────────────
