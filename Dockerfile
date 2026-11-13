@@ -1,5 +1,5 @@
 # Booking service. Build from the repository root: docker build -t api-booking .
-FROM python:3.12-slim AS base
+FROM python:3.15-slim AS base
 
 ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
