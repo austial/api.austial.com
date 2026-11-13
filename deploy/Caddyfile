@@ -1,0 +1,4 @@
+api.austial.com {
+	encode zstd gzip
+	reverse_proxy booking:8000
+}

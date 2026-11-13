@@ -1,0 +1,25 @@
+# Runs on the DigitalOcean Droplet. The database is DigitalOcean Managed Postgres, so there is no database container.
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - booking
+
+  booking:
+    image: ${BOOKING_IMAGE:?set BOOKING_IMAGE, for example ghcr.io/austial/api-booking:latest}
+    restart: unless-stopped
+    env_file: .env
+    expose:
+      - "8000"
+
+volumes:
+  caddy_data:
+  caddy_config:

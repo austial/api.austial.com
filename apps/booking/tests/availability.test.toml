@@ -1,0 +1,10 @@
+timezone = "UTC"
+slot_minutes = 30
+buffer_minutes = 0
+min_notice_hours = 1
+max_days_ahead = 30
+
+[[hours]]
+days = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+start = "09:00"
+end = "11:00"

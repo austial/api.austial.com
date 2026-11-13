@@ -1,0 +1,27 @@
+[project]
+name = "api-austial-com"
+version = "0.1.0"
+description = "Backend services for services.austial.com, built on the Austial framework. One app per service under apps/."
+requires-python = ">=3.11"
+dependencies = []
+
+# Each service is an app under apps/. Add another service by creating apps/<name>.
+[tool.uv.workspace]
+members = ["apps/*"]
+
+[dependency-groups]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+testpaths = ["apps/booking/tests"]
+pythonpath = ["apps/booking/src"]
+
+[tool.ruff]
+line-length = 110
+src = ["apps/booking/src", "apps/booking/tests"]
+
+[tool.ruff.lint]
+# The framework's own idiom: Body() and InjectRepository(...) are used as parameter defaults.
+ignore = ["B008"]

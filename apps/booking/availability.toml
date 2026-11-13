@@ -1,0 +1,14 @@
+# When people can book a 30-minute call. Edit these to match your real hours.
+# All times are in the time zone below. Slots are also removed when the Google Calendar
+# (if connected) shows you as busy, and when another booking or hold overlaps.
+
+timezone = "Asia/Kolkata"
+slot_minutes = 30
+buffer_minutes = 15        # gap kept before and after each booking
+min_notice_hours = 12      # earliest bookable time from now
+max_days_ahead = 45
+
+[[hours]]
+days = ["mon", "tue", "wed", "thu", "fri"]
+start = "10:00"
+end = "17:00"
