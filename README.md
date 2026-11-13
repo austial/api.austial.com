@@ -48,7 +48,7 @@ Edit `apps/booking/availability.toml` for your real hours, time zone, buffer and
 
 **Amazon SES.** Verify your sending domain, request production access (new accounts start in the sandbox), and give the API an IAM user or role that can `ses:SendRawEmail` or `sesv2:SendEmail`.
 
-**Google Calendar and Meet.** In Google Cloud, create an OAuth client, enable the Calendar API, and authorise your own account once with the scope `https://www.googleapis.com/auth/calendar.events` (the OAuth Playground works). Put the client id, secret and the resulting **refresh token** in the env file. The API then reads free/busy, creates events with a Meet link and lets Google email the invite.
+**Google Calendar and Meet.** In Google Cloud, create an OAuth client, enable the Calendar API, and authorise your own account once with the scopes `calendar.events` and `calendar.freebusy` (the wizard does this for you). Put the client id, secret and the resulting **refresh token** in the env file. The API then reads free/busy, creates events with a Meet link and lets Google email the invite.
 
 ## Deploy (DigitalOcean Droplet)
 
@@ -58,5 +58,5 @@ Edit `apps/booking/availability.toml` for your real hours, time zone, buffer and
 
 - Tables are created automatically on start (`synchronize`). Move to versioned migrations before changing the schema in production.
 - Rate limits and the booking lock live in memory, which is right for one container. Add a shared store before running several.
-- The Dockerfile and deploy workflow are written but have not been built or run here.
+- CI builds the Dockerfile and pushes the image. The SSH deploy step has not yet run against a real Droplet.
 - The Google Calendar and SES backends are implemented but not exercised against the real services.
