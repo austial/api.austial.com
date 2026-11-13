@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Checks the SES and Google Calendar setup using the API's own backends.
 
-    uv run python scripts/check_setup.py [path/to/env-file]      (default: deploy/.env)
+    uv run python scripts/check_setup.py [path/to/env-file]      (default: docs/deploy/.env)
 
 Sends one test email through Amazon SES to MAIL_NOTIFY_TO, asks Google for your free/busy times, and (with
 --event) creates and deletes a throwaway Google Calendar event to prove the Meet link works.
@@ -106,7 +106,7 @@ async def check_google(env: dict[str, str], make_event: bool) -> bool:
 
 async def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("env_file", nargs="?", default=str(ROOT / "deploy" / ".env"))
+    parser.add_argument("env_file", nargs="?", default=str(ROOT / "docs" / "deploy" / ".env"))
     parser.add_argument("--event", action="store_true", help="also create and delete a test calendar event")
     parser.add_argument("--only", choices=["ses", "google"])
     args = parser.parse_args()

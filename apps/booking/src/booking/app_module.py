@@ -28,6 +28,13 @@ def _calendar(settings: Settings) -> CalendarProvider:
     return GoogleCalendar(settings) if settings.calendar_backend == "google" else NullCalendar()
 
 
+def _synchronize() -> bool:
+    """Create tables from the entities on start. Development convenience only: production uses migrations
+    (python -m booking.migrate upgrade), so APP_ENV=prod turns this off unless DB_SYNCHRONIZE says otherwise."""
+    default = "false" if os.getenv("APP_ENV") == "prod" else "true"
+    return os.getenv("DB_SYNCHRONIZE", default).strip().lower() in {"1", "true", "yes"}
+
+
 def _db(config: ConfigService) -> dict:
     url = config.get("DATABASE_URL") or EnvSchema.model_fields["DATABASE_URL"].default
     return {"type_": "postgres" if url.startswith("postgresql") else "sqlite", "url": url}
@@ -36,7 +43,7 @@ def _db(config: ConfigService) -> dict:
 @Module(
     imports=[
         ConfigModule.for_root(".env", validation_schema=EnvSchema),
-        OrmModule.for_root_async(use_factory=_db, inject=[ConfigService], entities=ENTITIES, synchronize=True),
+        OrmModule.for_root_async(use_factory=_db, inject=[ConfigService], entities=ENTITIES, synchronize=_synchronize()),
         OrmModule.for_feature(ENTITIES),
         SecurityModule.for_root(
             SecurityConfig(default_rate_limit=(120, 60), trusted_proxy_hops=int(os.getenv("TRUSTED_PROXY_HOPS", "0")))

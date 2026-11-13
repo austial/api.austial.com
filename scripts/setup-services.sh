@@ -198,7 +198,7 @@ finish() {
 run_wizard() {
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-ENV_FILE="${ENV_FILE:-$ROOT/deploy/.env}"
+ENV_FILE="${ENV_FILE:-$ROOT/docs/deploy/.env}"
 mkdir -p "$(dirname "$ENV_FILE")"
 
 TOTAL_STAGES=13
@@ -223,6 +223,7 @@ write_env MAIL_FROM "Austial <$MAIL_ADDRESS>"
 write_env MAIL_NOTIFY_TO "$MAIL_NOTIFY_TO"
 write_env AWS_REGION "$AWS_REGION"
 write_env APP_ENV prod
+write_env DB_SYNCHRONIZE false
 write_env MAIL_BACKEND ses
 write_env CALENDAR_BACKEND google
 write_env SITE_URL "https://services.austial.com"
@@ -411,7 +412,7 @@ stage "Hand the env file to the server"
 say "Your finished file is $ENV_FILE."
 say "On the Droplet it must live at /opt/api/.env (mode 600). From this machine:"
 printf '\n    scp "%s" root@YOUR_DROPLET_IP:/opt/api/.env\n\n' "$ENV_FILE"
-note "That needs the Droplet to exist (see deploy/ and the README). Never commit this file."
+note "That needs the Droplet to exist (see docs/deploy/ and the README). Never commit this file."
 pause
 
 finish

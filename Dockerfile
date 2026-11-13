@@ -24,7 +24,7 @@ EXPOSE 8000
 HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
   CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=3)" || exit 1
 
-# --proxy-headers: Caddy terminates TLS in front, so trust one hop (also set TRUSTED_PROXY_HOPS=1).
-CMD ["uv", "run", "--no-dev", "--package", "booking", "uvicorn", "booking.main:app", \
-     "--app-dir", "apps/booking/src", "--host", "0.0.0.0", "--port", "8000", \
-     "--proxy-headers", "--forwarded-allow-ips", "*"]
+# Migrations run first, then the server. --proxy-headers: Caddy terminates TLS in front, so trust one hop
+# (also set TRUSTED_PROXY_HOPS=1).
+ENV PYTHONPATH=/app/apps/booking/src
+CMD ["sh", "-c", "uv run --no-dev --package booking python -m booking.migrate upgrade && exec uv run --no-dev --package booking uvicorn booking.main:app --app-dir apps/booking/src --host 0.0.0.0 --port 8000 --proxy-headers --forwarded-allow-ips '*'"]

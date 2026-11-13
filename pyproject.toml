@@ -20,6 +20,7 @@ pythonpath = ["apps/booking/src"]
 
 [tool.ruff]
 line-length = 110
+extend-exclude = ["apps/booking/migrations"]
 src = ["apps/booking/src", "apps/booking/tests"]
 
 [tool.ruff.lint]

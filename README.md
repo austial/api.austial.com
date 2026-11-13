@@ -44,7 +44,7 @@ Edit `apps/booking/availability.toml` for your real hours, time zone, buffer and
 
 ## One-time setup
 
-**Guided setup.** `scripts/setup-services.sh` walks you through everything below (SES, Google, database), writes `deploy/.env`, and can send a test email and read your calendar. Re-run it any time; it keeps values already saved. `uv run python scripts/check_setup.py --event` re-runs just the checks.
+**Guided setup.** `scripts/setup-services.sh` walks you through everything below (SES, Google, database), writes `docs/deploy/.env`, and can send a test email and read your calendar. Re-run it any time; it keeps values already saved. `uv run python scripts/check_setup.py --event` re-runs just the checks.
 
 **Amazon SES.** Verify your sending domain, request production access (new accounts start in the sandbox), and give the API an IAM user or role that can `ses:SendRawEmail` or `sesv2:SendEmail`.
 
@@ -52,11 +52,11 @@ Edit `apps/booking/availability.toml` for your real hours, time zone, buffer and
 
 ## Deploy (DigitalOcean Droplet)
 
-`deploy/docker-compose.yml` runs Caddy (automatic HTTPS for `api.austial.com`) and the API container. The database is Managed Postgres. `.github/workflows/deploy.yml` tests, builds an image to GHCR and deploys over SSH when you push to `main`. Repository secrets: `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `GHCR_PULL_TOKEN`. Put `deploy/` on the server at `/opt/api` with a filled-in `.env`.
+`docs/deploy/docker-compose.yml` runs Caddy (automatic HTTPS for `api.austial.com`) and the API container. The database is Managed Postgres. `.github/workflows/deploy.yml` tests, builds an image to GHCR and deploys over SSH when you push to `main`. Repository secrets: `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `GHCR_PULL_TOKEN`. Put `docs/deploy/` on the server at `/opt/api` with a filled-in `.env`.
 
 ## Known limits (v0.1)
 
-- Tables are created automatically on start (`synchronize`). Move to versioned migrations before changing the schema in production.
+- Schema changes go through versioned migrations: `python -m booking.migrate revision "message"` (review the file), then the container applies them on start. Dev and tests still create tables from the entities.
 - Rate limits and the booking lock live in memory, which is right for one container. Add a shared store before running several.
 - CI builds the Dockerfile and pushes the image. The SSH deploy step has not yet run against a real Droplet.
 - The Google Calendar and SES backends are implemented but not exercised against the real services.

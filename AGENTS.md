@@ -6,4 +6,4 @@ Check changes with `uv run ruff check . && uv run pytest -q` (tests use `austial
 
 The end-to-end launch plan is in the services site repo, `docs/plan.md`; deploy and environment setup is `README.md` and `scripts/setup-services.sh`.
 
-Never commit `.env` files or real credentials; the setup wizard writes `deploy/.env`, which is git-ignored.
+Never commit `.env` files or real credentials; the setup wizard writes `docs/deploy/.env`, which is git-ignored.

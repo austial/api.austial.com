@@ -4,4 +4,4 @@
 **/*.db
 .env*
 .github
-deploy
+docs/deploy
