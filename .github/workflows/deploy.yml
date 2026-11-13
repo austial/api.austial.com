@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -57,7 +58,7 @@ jobs:
           script: |
             set -e
             cd /opt/api
-            echo "${{ secrets.GHCR_PULL_TOKEN }}" | docker login ghcr.io -u "${{ github.repository_owner }}" --password-stdin
+            echo "${{ secrets.GHCR_PULL_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
             export BOOKING_IMAGE="${{ needs.image.outputs.tag }}"
             sed -i "s|^BOOKING_IMAGE=.*|BOOKING_IMAGE=$BOOKING_IMAGE|" .env
             docker compose pull

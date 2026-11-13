@@ -4,6 +4,6 @@ Backend services for services.austial.com on the Austial framework (`austial` 0.
 
 Check changes with `uv run ruff check . && uv run pytest -q` (tests use `austial.testing` and the console mailer, no network). Follow the framework's module shape: Module, Controller, Injectable, and `Repository` from `OrmModule`. `uv sync --all-packages` installs every app.
 
-The end-to-end launch plan is in the services site repo, `docs/plan.md`; deploy and environment setup is `README.md` and `scripts/setup-services.sh`.
+The end-to-end launch plan is in the services site repo, `docs/plan.md`; deploy and environment setup is `README.md`, `scripts/setup-services.sh` (SES, Google, database) and `scripts/setup-deploy.sh` (server, pipeline, Vercel, live checks).
 
 Never commit `.env` files or real credentials; the setup wizard writes `docs/deploy/.env`, which is git-ignored.

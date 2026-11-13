@@ -46,6 +46,8 @@ Edit `apps/booking/availability.toml` for your real hours, time zone, buffer and
 
 **Guided setup.** `scripts/setup-services.sh` walks you through everything below (SES, Google, database), writes `docs/deploy/.env`, and can send a test email and read your calendar. Re-run it any time; it keeps values already saved. `uv run python scripts/check_setup.py --event` re-runs just the checks.
 
+**Guided deploy.** After that, `scripts/setup-deploy.sh` does the rest in 10 stages: a dedicated deploy key, the Droplet (Docker, firewall, `/opt/api`, your `.env`), the `api` DNS record, the GitHub secrets and `production` environment, the first deploy with a health check, Vercel, Search Console, and the six live checks. Run it from anywhere: `./api.austial.com/scripts/setup-deploy.sh`.
+
 **Amazon SES.** Verify your sending domain, request production access (new accounts start in the sandbox), and give the API an IAM user or role that can `ses:SendRawEmail` or `sesv2:SendEmail`.
 
 **Google Calendar and Meet.** In Google Cloud, create an OAuth client, enable the Calendar API, and authorise your own account once with the scopes `calendar.events` and `calendar.freebusy` (the wizard does this for you). Put the client id, secret and the resulting **refresh token** in the env file. The API then reads free/busy, creates events with a Meet link and lets Google email the invite.
